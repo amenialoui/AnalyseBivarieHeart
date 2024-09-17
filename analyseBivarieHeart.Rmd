@@ -40,6 +40,7 @@ eff_elec=table(db$electro)
 eff_elec
 feq_elec=prop.table(eff_elec)
 feq_elec
+
 ```
 
 **Représentation Graphique « electro et coeur»**
