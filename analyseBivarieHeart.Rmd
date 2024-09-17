@@ -1,0 +1,237 @@
+---
+title: "Projet Analyse statistique"
+author: "Aloui Ameni"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Dans ce projet, nous allons etudier les differents facteurs qui peuvent engendrer la présence de maladie de coeur. pour cela, on a utiliser le jeu de données “heart” qui a été collecté auprès d’un échantillon de patients.
+
+1-Importation et exploration des données R:
+
+
+```{r}
+db=read.table(file=file.choose(),header =TRUE,sep = "\t", dec ='.')
+View(db)
+str(db)
+```
+Les variables exploites sont regroupes en:
+des variables quantitatives continues{l'age, pression, cholester taux_max,depression} variables quantitatives discret {pic} et des variables qualitatives {sexe, type_douleur, cholester, sucre, electro, taux_max, angine, vaisseau et coeur}.
+Ce jeux de donnees ne contient pas des valeurs manquantes.
+
+
+2-Etude des variables « electro et coeur»:
+
+Cette partie traite les deux variables qualitatives electro et coeur.
+
+```{r}
+#Variable Coeur
+levels(as.factor(db$coeur))
+eff_coeu=table(db$coeur)
+eff_coeu
+feq_coeu=eff_coeu/length(db$coeur)
+feq_coeu
+
+#Variable Electro
+levels(as.factor(db$electro))
+eff_elec=table(db$electro)
+eff_elec
+feq_elec=prop.table(eff_elec)
+feq_elec
+```
+
+**Représentation Graphique « electro et coeur»**
+
+```{r}
+library(ggplot2)
+library(cowplot)
+
+db1 <- ggplot(db) + aes(x = electro) + geom_bar()
+db2 <- ggplot(db) + aes(x = coeur) + geom_bar()
+
+plot_grid(db1, db2, labels = "AUTO")
+
+
+```
+
+**Croisement entre «electro et coeur»**
+*tableau de contingence
+
+```{r}
+tabcont=table(db$electro,db$coeur)
+tabcont
+```
+
+**Représentation Graphique du croissement**
+
+```{r}
+library(ggmosaic)
+ggplot(data = db) +
+  geom_mosaic(aes(x = product(electro), fill = coeur)) +
+  theme_mosaic()
+
+```
+
+```{r warning=FALSE}
+chisq.test(tabcont)
+```
+
+on compare la valeur de p-value obtenue à 5% (0.05)
+la valeur de p-value obtenue est  `r chisq.test(tabcont)`,il est donc très largement inférieur à 5% , d'ou il existe une difference significative entre le type de coeur et le type de electro. Ces deux variables dépendent l'une de l'autre. 
+
+2-Etude des variables « age et cholesterol »:
+
+Cette partie traite les deux variables quantitatives electro et coeur.
+
+```{r}
+mean(db$age)
+mean(db$cholester)
+median(db$age)
+median(db$cholester)
+min(db$age)
+min(db$cholester)
+quantile(db$age)
+quantile(db$cholester)
+max(db$age)
+max(db$cholester)
+var(db$age)
+var(db$cholester)
+sd(db$age)
+sd(db$cholester)
+cv1=sd(db$age)/mean(db$age)
+cv1
+cv2=sd(db$cholester)/mean(db$cholester)
+cv2
+
+```
+
+***Representation graphique de la variable age***
+
+```{r}
+ggplot(db)+aes(y=age) + geom_boxplot()
+
+```
+**Representation garphique de la variable cholester**
+
+```{r}
+ggplot(db)+aes(y=cholester) + geom_boxplot()
+```
+
+On remarque que les deux variables age et cholester ont un coefficient de variation faible < 20%, on peut dire que la serie est homogene,la dispersion autour de la moyenne est faible, autrement dit les valeurs sont concentre autour de la moyenne.
+box plot age:
+
+50% des idividues ont un age entre 48 et 61. Plus precisement, 50% ont un age egale a 55 ans. Mais, l'age de 25% des individues peut baisser jusqu'a 29 ans et l'age de 25% peut atteindre 77 ans.
+
+On observe une distribution approxiatiquement symetrique de la variable age et chlestel. En effet, la ligne mediane est devie au centre de la boîte à moustaches par rapport à la longueur de la boîte. de plus, la longueur de la moustache supérieure est approximatiquement agale a la longueur de la moustache inférieure
+
+Pour la variable cholester, on remarque que 50% des individdues ont un taux entre  213 et 280. Plus precisment 50% ont un taux egala 245. Le cholestel de 25% des individues peut baisser jusqu a 126 et pour 25% peut atteindre 564.
+les donnes de la variable electro sont symetrique puisque la mediane de 245 se situe au milieux du 1 er quartile et du 3eme quartile.
+
+val min=126< Borne Inférieure=q1-1.5*iiq= 213*1.5-67=252.5 et val max=564 Borne Supérieure= val max = 564<q3+1.5iiq=280+1.5*67=380.5 d;ou il existe des valeurs aberrantes comme le montre le box plot.
+On observe des valeurs qui se trouvent en dehors du box plot. Ces valeurs sont plus grandes que les autres donnees. Cela indique qu'ils sont des cas exceptionnelles qu'on peut étudier plus tard en détail.
+
+***Regroupemnt de a variable age en classes age***
+
+```{r}
+n=length(db$age)
+classeage=cut(db$age,breaks=(1+3.3*log10(n)))
+table(classeage)
+range(db$age)
+length(db$age)
+
+```
+On a cree 9 classes d'age. Pour cela, on a utilisee la regle de sturges:1+3.3logN=1+(3.3*log270)=9.
+
+***Relation entre les deux variables***
+```{r}
+cov(db$age,db$cholester)
+cor(db$age,db$cholester)
+```
+
+cov ( X, Y)=103.6 > 0 : d'ou il existe une dépendance linéaire positive entre les deux variables age et cholester. Autrement dit les deux variables varient dans le meme sens.
+on note un coefficient de coorelation egale a 0.22. les deux variables age et cholester sont positivement et faiblement coorele. Plus les individues sont agees, plus le niveau de scholester augmente.
+
+***nuage de points***
+
+```{r}
+ggplot(db)+aes(x=age,y=cholester,color=classeage)+geom_point()
+
+```
+
+le graphiqe montre correlation positive entre les deux variables. Il suggere une relation linaire croissante.
+
+
+***Modélisation linéaire simple***
+
+On cherche à expliquer la variation du cholester par rapport a l'age.
+
+```{r}
+reg=lm(db$cholester~db$age)
+reg
+coef(reg)
+eq1=paste('cholester~', round((coef(reg)[1]),2),'+',round((coef(reg)[2]),3),'*age')
+```
+
+on note beta (estimee)=1.249 et b2 (estimee)=intercept=181.692
+l'equation : mpg=181.692+1.249*wt
+
+```{r}
+ggplot(db)+aes(x=age,y=cholester)+geom_point()+stat_smooth(method="lm", se=FALSE)+
+  ggtitle(eq1)
+
+```
+
+
+4-Etude des variables « type_douleur et pression»
+
+```{r}
+mean(db$pression)
+median(db$pression)
+quantile(db$pression)
+min(db$pression)
+max(db$pression)
+names(which.max(table(db$pression)))
+
+
+```
+
+On remarque que le type de douleur A ( angine typique) engendre/ provoque les plus fortes pressions
+anova : utilisée dans de nombreux scénarios pour déterminer s'il existe une différence entre les moyennes de différents groupes.
+
+***representation garphique de la variable pression***
+
+```{r}
+ggplot(db)+aes(y=pression) + geom_boxplot()
+```
+```{r}
+ggplot(db)+aes(x=pression)+geom_histogram()
+```
+***Test ANOVA***
+
+```{r}
+db$type_douleur <- as.factor(db$type_douleur)
+test <- aov(pression ~ type_douleur, data = db)
+test
+summary(test)
+```
+Les résultats de l'ANOVA montrent une relation statistiquement significative entre les types de douleur (type_douleur) et la pression artérielle (pression). Avec une statistique F de 2,851 et une p-value de 0,0378, il y a moins de 5 % de chances que cette différence soit due au hasard. Cela suggère que les différents types de douleur ont un impact notable sur la pression artérielle, justifiant ainsi une exploration plus approfondie de cette relation dans le cadre médical.
+
+5-Modélisation linéaire de la variable « pression en fonction de la variable cholesterol »:
+
+```{r}
+ggplot(db)+aes(x=cholester,y=pression)+geom_point()
+reg2=lm(db$pression~db$cholester)
+reg2
+summary(reg)
+eq2=paste('pression~', round((coef(reg2)[1]),2),'+',round((coef(reg2)[2]),3),'*cholester')
+eq2
+```
+
+On oberve une adjusted R2=0.026 . C'est a dire seulement 2% de la variablite des donnees est explique par le modele  de la population qui est faible.
+
+```{r}
+ggplot(db)+aes(x=cholester,y=pression)+geom_point()+stat_smooth(method="lm", se=FALSE)+
+  ggtitle(eq2)
+
+```
+
