@@ -3,8 +3,8 @@ title: "Projet Analyse statistique"
 author: "Aloui Ameni"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 Dans ce projet, nous allons etudier les differents facteurs qui peuvent engendrer la présence de maladie de coeur. pour cela, on a utiliser le jeu de données “heart” qui a été collecté auprès d’un échantillon de patients.
@@ -78,8 +78,9 @@ ggplot(data = db) +
 chisq.test(tabcont)
 ```
 
+
 on compare la valeur de p-value obtenue à 5% (0.05)
-la valeur de p-value obtenue est  `r chisq.test(tabcont)`,il est donc très largement inférieur à 5% , d'ou il existe une difference significative entre le type de coeur et le type de electro. Ces deux variables dépendent l'une de l'autre. 
+la valeur de p-value obtenue est  0.01122, il est donc très largement inférieur à 5% , d'ou il existe une difference significative entre le type de coeur et le type de electro. Ces deux variables dépendent l'une de l'autre. 
 
 2-Etude des variables « age et cholesterol »:
 
