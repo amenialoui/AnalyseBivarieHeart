@@ -2,7 +2,9 @@
 title: "Projet Analyse statistique"
 author: "Aloui Ameni"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 Dans ce projet, nous allons etudier les differents facteurs qui peuvent engendrer la présence de maladie de coeur. pour cela, on a utiliser le jeu de données “heart” qui a été collecté auprès d’un échantillon de patients.
